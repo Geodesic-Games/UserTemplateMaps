@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "UserTemplateMaps",
+	"FriendlyName": "User Template Maps",
 	"Description": "An Unreal 5.4+ plugin to allow the user to specify their own template maps.",
 	"Category": "Other",
 	"CreatedBy": "GeoTech BV",

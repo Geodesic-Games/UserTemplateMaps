@@ -21,17 +21,31 @@ class FUserTemplateMapsModule
 public:
 	virtual void StartupModule() override
 	{
+		if (UUserTemplateMapsSettings* Settings = GetMutableDefault<UUserTemplateMapsSettings>())
+		{
+			Settings->OnSettingChanged().AddRaw(this, &FUserTemplateMapsModule::OnSettingsChanged);
+		}
+		
 		FCoreDelegates::OnPostEngineInit.AddRaw(this, &FUserTemplateMapsModule::PostEngineInit);
 	}
-	
+
 	virtual void ShutdownModule() override
 	{
-		GUnrealEd->RebuildTemplateMapData();
-		
+		if (UUserTemplateMapsSettings* Settings = GetMutableDefault<UUserTemplateMapsSettings>())
+		{
+			Settings->OnSettingChanged().RemoveAll(this);
+		}
+
 		FCoreDelegates::OnPostEngineInit.RemoveAll(this);
 	}
 
 private:
+	void OnSettingsChanged(UObject* Object, FPropertyChangedEvent& PropertyChangedEvent)
+	{
+		// Effectively refresh maps
+		RegisterLevelTemplates();
+	}
+
 	void PostEngineInit()
 	{
 		if (FSlateApplication::IsInitialized())
@@ -87,8 +101,28 @@ private:
 								}
 							}
 
-							if (LevelAsset.IsValid() && ThumbnailAsset.IsValid())
+							if (!LevelAsset.IsValid())
 							{
+								UE_LOG(LogUserTemplateMaps, Warning, TEXT(
+									"A map template path was found, but it didn't contain a matching level with the name '%s'. "
+									"Ensure a level exists, and name it appropriately (ie. '%s')"),
+									*LevelTemplateName,
+									*FString::Printf(TEXT("L_%s"), *LevelTemplateName));
+							}
+							else
+							{
+								UTexture2D* ThumbnailTexture = nullptr;
+
+								// Thumbnail will be used if found, but is not essential
+								if (!ThumbnailAsset.IsValid())
+								{
+									UE_LOG(LogUserTemplateMaps, Warning, TEXT(
+										"A map template path was found, but it didn't contain a matching thumbnail texture with the name '%s'. "
+										"To use a custom thumbnail, ensure a texture exists, and name it appropriately (ie. '%s')"),
+										*LevelTemplateName,
+										*FString::Printf(TEXT("T_%s"), *LevelTemplateName));
+								}
+
 								if (!GUnrealEd->IsTemplateMap(LevelAsset.GetObjectPathString()))
 								{
 									FString LevelTemplateDisplayName = FName::NameToDisplayString(LevelTemplateName, false);
@@ -96,28 +130,12 @@ private:
 									FTemplateMapInfo& MapTemplate = TemplateMaps.Emplace_GetRef();
 									MapTemplate.Category = TemplatePath.CategoryName;
 									MapTemplate.DisplayName = FText::FromString(LevelTemplateDisplayName);
-									MapTemplate.ThumbnailTexture = ThumbnailAsset.GetSoftObjectPath();			
 									MapTemplate.Map = LevelAsset.GetSoftObjectPath();
-								}
-							}
-							else
-							{
-								if (!LevelAsset.IsValid())
-								{
-									UE_LOG(LogUserTemplateMaps, Warning, TEXT(
-										"A map template path was found, but it didn't contain a matching level with the name '%s'. "
-										"Ensure a level exists, and that it's named appropriately (ie. '%s')"),
-										*LevelTemplateName,
-										*FString::Printf(TEXT("L_%s"), *LevelTemplateName));
-								}
 
-								if (!ThumbnailAsset.IsValid())
-								{
-									UE_LOG(LogUserTemplateMaps, Warning, TEXT(
-										"A map template path was found, but it didn't contain a matching thumbnail texture with the name '%s'. "
-										"Ensure a texture exists, and that it's named appropriately (ie. '%s')"),
-										*LevelTemplateName,
-										*FString::Printf(TEXT("T_%s"), *LevelTemplateName));
+									if (ThumbnailAsset.IsValid())
+									{
+										MapTemplate.ThumbnailTexture = ThumbnailAsset.GetSoftObjectPath();
+									}
 								}
 							}
 						}
@@ -131,5 +149,5 @@ private:
 };
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FUserTemplateMapsModule, UserTemplateMaps)

@@ -9,5 +9,5 @@ FName UUserTemplateMapsSettings::GetCategoryName() const
 
 FText UUserTemplateMapsSettings::GetSectionText() const
 {
-	return NSLOCTEXT("UserTemplateMaps", "UserTemplateMapsSettingsSection", "Map Templates");
+	return NSLOCTEXT("UserTemplateMaps", "UserTemplateMapsSettingsSection", "User Template Maps");
 }

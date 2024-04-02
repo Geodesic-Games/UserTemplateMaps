@@ -12,7 +12,7 @@ struct FUserTemplateMapEntry
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (RelativePath, LongPackageName))
 	FDirectoryPath Path;
 
 	UPROPERTY(EditAnywhere)
@@ -41,7 +41,7 @@ class UUserTemplateMapsSettings : public UDeveloperSettings
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Config, Category = "Paths", meta = (TitleProperty = "Path"))
+	UPROPERTY(EditAnywhere, Config, Category = "Paths", meta = (TitleProperty = "Path.Path.Path"))
 	TSet<FUserTemplateMapEntry> Paths;
 
 #if WITH_EDITOR
