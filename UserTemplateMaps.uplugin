@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "UserTemplateMaps",
+	"Description": "An Unreal 5.4+ plugin to allow the user to specify their own template maps.",
+	"Category": "Other",
+	"CreatedBy": "GeoTech BV",
+	"CreatedByURL": "https://github.com/Geodesic-Games/UserTemplateMaps",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "UserTemplateMaps",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}
